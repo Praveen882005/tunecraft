@@ -62,7 +62,10 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 },
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB
+    fieldSize: 10 * 1024 * 1024, // 10MB for form fields
+  },
   fileFilter: (req, file, cb) => {
     const ok =
       file.mimetype.includes("audio") ||
@@ -85,7 +88,12 @@ async function uploadToTelegram(filePath, fileName, title) {
     console.log("📡 Trying sendAudio...");
     const form = new FormData();
     form.append("chat_id", CHANNEL_ID);
-    form.append("audio", fs.createReadStream(filePath), {
+
+    // Use fs.createReadStream with higher watermark for faster streaming
+    const fileStream = fs.createReadStream(filePath, {
+      highWaterMark: 1024 * 1024,
+    });
+    form.append("audio", fileStream, {
       filename: fileName,
       contentType: "audio/mpeg",
     });
@@ -95,7 +103,9 @@ async function uploadToTelegram(filePath, fileName, title) {
       headers: form.getHeaders(),
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-      timeout: 120000,
+      timeout: 300000, // Increased to 5 minutes
+      httpAgent: { keepAlive: true, keepAliveMsecs: 1000 },
+      httpsAgent: { keepAlive: true, keepAliveMsecs: 1000 },
     });
 
     console.log(
@@ -120,16 +130,22 @@ async function uploadToTelegram(filePath, fileName, title) {
     console.log("📡 Trying sendDocument...");
     const form2 = new FormData();
     form2.append("chat_id", CHANNEL_ID);
-    form2.append("document", fs.createReadStream(filePath), {
-      filename: fileName,
-      contentType: "audio/mpeg",
-    });
+    form2.append(
+      "document",
+      fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 }),
+      {
+        filename: fileName,
+        contentType: "audio/mpeg",
+      },
+    );
 
     const res2 = await axios.post(`${TELEGRAM_API}/sendDocument`, form2, {
       headers: form2.getHeaders(),
       maxContentLength: Infinity,
       maxBodyLength: Infinity,
-      timeout: 120000,
+      timeout: 300000, // Increased to 5 minutes
+      httpAgent: { keepAlive: true, keepAliveMsecs: 1000 },
+      httpsAgent: { keepAlive: true, keepAliveMsecs: 1000 },
     });
 
     console.log(

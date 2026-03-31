@@ -3,6 +3,12 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd backend && npm install && npm start"
+    "startCommand": "npm start",
+    "healthcheckUrl": "http://localhost:$PORT/health",
+    "restartPolicyMaxRetries": 3
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "5000"
   }
 }
