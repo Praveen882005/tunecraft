@@ -15,8 +15,7 @@
     "form-data": "^4.0.0",
     "mongoose": "^8.0.0",
     "morgan": "^1.10.0",
-    "multer": "^1.4.5-lts.1",
-    "tunecraft-music-app": "file:.."
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
