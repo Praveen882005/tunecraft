@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Personal music streaming app with Telegram storage",
   "scripts": {
+    "build": "npm install --prefix backend",
+    "start": "node backend/server.js",
     "install:all": "npm install --prefix backend && npm install --prefix frontend",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
     "start:backend": "npm start --prefix backend",
